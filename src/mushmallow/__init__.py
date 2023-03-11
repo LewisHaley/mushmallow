@@ -9,41 +9,9 @@ import textwrap
 import black
 import marshmallow
 
-from .text import indent, wrap_text
+from .formatting import format_metadata, maybe_wrap_line
+from .text import indent
 from .repr_ast import repr_ast
-
-
-def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=sorted):
-    meta_lines = [
-        "metadata={",
-    ]
-    items = []
-    for meta_name, meta_value in sort_func(metadata.items()):
-        items.extend(
-            maybe_wrap_line(
-                meta_name,
-                ": ",
-                meta_value,
-                "()",
-                width=max_line_length - (indent_size * 2),
-            )
-        )
-    meta_lines.extend(indent(items))
-    meta_lines.append("},")
-    return meta_lines
-
-
-def maybe_wrap_line(first_bit, sep, second_bit, parens, width=80):
-    new_line = f"{first_bit}{sep}{second_bit},"
-    if len(new_line) > width:
-        wrapped_lines = indent(wrap_text(second_bit, width=width))
-        new_lines = [f"{first_bit}{sep}{parens[0]}"]
-        new_lines.extend(wrapped_lines)
-        new_lines.append(f"{parens[1]},")
-    else:
-        new_lines = [new_line]
-
-    return new_lines
 
 
 def format_field(
