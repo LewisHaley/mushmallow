@@ -133,7 +133,7 @@ def _repr_assign(node, full_call_repr):
     return f"{targets} = {repr_ast(node.value, full_call_repr)}"
 
 
-def _repr_list(node, full_call_repr):  # pylint: disable=unused-argument
+def _repr_list(node, full_call_repr):
     """Repr an `ast.List`.
 
     :param ast.List node:
@@ -142,11 +142,11 @@ def _repr_list(node, full_call_repr):  # pylint: disable=unused-argument
     :returns: the repr'd node
     :rtype: str
     """
-    elts = [repr_ast(elt) for elt in node.elts]
+    elts = [repr_ast(elt, full_call_repr) for elt in node.elts]
     return f"[{', '.join(elts)}]"
 
 
-def _repr_listcomp(node, full_call_repr):  # pylint: disable=unused-argument
+def _repr_listcomp(node, full_call_repr):
     """Repr an `ast.ListComp`.
 
     :param ast.ListComp node:
@@ -171,7 +171,7 @@ def _repr_listcomp(node, full_call_repr):  # pylint: disable=unused-argument
     return ret
 
 
-def _repr_dict(node, full_call_repr):  # pylint: disable=unused-argument
+def _repr_dict(node, full_call_repr):
     """Repr an `ast.Dict`.
 
     :param ast.Dict node:
@@ -181,7 +181,8 @@ def _repr_dict(node, full_call_repr):  # pylint: disable=unused-argument
     :rtype: str
     """
     pairs = [
-        f"{repr_ast(key)}: {repr_ast(val)}" for key, val in zip(node.keys, node.values)
+        f"{repr_ast(key)}: {repr_ast(val, full_call_repr)}"
+        for key, val in zip(node.keys, node.values)
     ]
     return f"{{{', '.join(pairs)}}}"
 
@@ -198,7 +199,7 @@ def _repr_expr(node, full_call_repr):
     return repr_ast(node.value, full_call_repr)
 
 
-def _repr_tuple(node, full_call_repr):  # pylint: disable=unused-argument
+def _repr_tuple(node, full_call_repr):
     """Repr an `ast.Tuple`.
 
     :param ast.Tuple node:
