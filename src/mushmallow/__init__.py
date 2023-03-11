@@ -153,11 +153,12 @@ def format_field(
     return indented_new_field_lines
 
 
-def main():
-    file_to_fix = sys.argv[1]
+def fix_marshmallow(file_to_fix):
+    """Fix/Format Marshmallow schemas in a file.
 
-    with open(file_to_fix, mode="r") as fd:
-        lines = map(str.rstrip, fd.readlines())
+    :param pathlib.Path file_to_fix: the file to fix
+    """
+    lines = file_to_fix.read_text().splitlines()
 
     max_line_length = 80
     indent_size = 4
@@ -213,8 +214,4 @@ def main():
             )
             outlines.extend(field_lines)
 
-    print("\n".join(outlines))
-
-
-if __name__ == "__main__":
-    main()
+    file_to_fix.write_text("\n".join(outlines) + "\n")
