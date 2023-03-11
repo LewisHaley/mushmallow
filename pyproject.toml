@@ -1,0 +1,26 @@
+[project]
+name = "mushmallow"
+version = "0.0.1"
+authors = [
+    {name = "Lewis Haley", email = "you@yourdomain.com"},
+]
+description = "Formatting tool for Marshmallow"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+]
+
+dependencies = [
+    "black",
+    "marshmallow",
+]
+
+[project.optional-dependencies]
+test = [
+    "pylint",
+    "pytest",
+    "pytest-cov",
+]
