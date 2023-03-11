@@ -17,8 +17,8 @@ def wrap_text(text, width=80):
     :rtype: list[str]
     """
     # Strip the quotes off each end of the text, we'll requote later
-    if text[0] == '"' and text[-1] == '"' and text[0] == "'" and text[-1] == "'":
-        text = text[1:-1]
+    text = strip_quotes(text)
+
     wrapped_lines = textwrap.wrap(text, width=width)
     # Add a space at the end of every line except the last one
     last_line_idx = len(wrapped_lines)
@@ -61,3 +61,16 @@ def format_builtin(obj):
     else:
         ret = str(obj)
     return ret
+
+
+def strip_quotes(text):
+    """Strip matching double- or single-quotes from each end of a string.
+
+    :param str text: the text from which to strip quotes
+
+    :returns: the text without quotes
+    :rtype: str
+    """
+    if (text[0] == '"' and text[-1] == '"') or (text[0] == "'" and text[-1] == "'"):
+        text = text[1:-1]
+    return text

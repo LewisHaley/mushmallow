@@ -113,3 +113,42 @@ class TestFormatBuiltin:
         """Test input is anything but a string."""
         actual = text.format_builtin(input_)
         assert actual == expected
+
+
+class TestStripQuotes:
+    """Tests for `strip_quotes`."""
+
+    @pytest.mark.parametrize(
+        "input_",
+        [
+            "nope",
+            "this doesn't change",
+            "str",
+            "my_func()",
+            "my_func(val=True)",
+            '"only leading double-quote',
+            'only trailing double-quote"',
+            "'only leading single-quote",
+            "only trailing single-quote'",
+            "\"mismatched quotes'",
+            "'mismatched quotes\"",
+        ],
+    )
+    def test_no_change(self, input_):
+        """Test no change to the input."""
+        actual = text.strip_quotes(input_)
+        assert actual == input_
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ('"double-quotes"', "double-quotes"),
+            ("'single-quotes'", "single-quotes"),
+            ("\"'all of the quotes'\"", "'all of the quotes'"),
+            ("'\"all of the quotes\"'", '"all of the quotes"'),
+        ],
+    )
+    def test_stripped(self, input_, expected):
+        """Test quotes are stripped."""
+        actual = text.strip_quotes(input_)
+        assert actual == expected
