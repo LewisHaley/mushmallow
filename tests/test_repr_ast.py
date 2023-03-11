@@ -6,6 +6,8 @@ import pytest
 
 from mushmallow.repr_ast import repr_ast
 
+# pylint: disable=missing-param-doc,missing-type-doc
+
 
 class TestReprAst:
     """Tests for `repr_ast`."""

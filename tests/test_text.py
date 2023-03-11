@@ -4,6 +4,8 @@ import pytest
 
 from mushmallow import text
 
+# pylint: disable=missing-param-doc,missing-type-doc
+
 
 class TestWrapText:
     """Tests for `wrap_text`."""
