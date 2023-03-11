@@ -10,7 +10,7 @@ import black
 import marshmallow
 
 from .formatting import format_metadata, maybe_wrap_line
-from .text import indent
+from .text import indent, strip_quotes
 from .repr_ast import repr_ast
 
 
@@ -62,17 +62,31 @@ def format_field(
             ).splitlines()
         )
 
+    def unwrap_ast_dict(dct):
+        if not isinstance(dct, ast.Dict):
+            return strip_quotes(repr_ast(dct, full_call_repr=True))
+
+        new_dct = {
+            strip_quotes(repr_ast(k)): unwrap_ast_dict(v)
+            for k, v in zip(dct.keys, dct.values)
+        }
+        return new_dct
+
     # Create kwargs dict. We aren't dealing with long lines here, because we
     # will do it later if necessary.
     kwargs = {
-        kw.arg: repr_ast(kw.value, full_call_repr=True)
+        kw.arg: (
+            unwrap_ast_dict(kw.value)
+            if isinstance(kw.value, ast.Dict)
+            else strip_quotes(repr_ast(kw.value, full_call_repr=True))
+        )
         for kw in statement.value.keywords
     }
 
     if fix_kwargs_for_marshmallow_4:
         # Fix kwargs for Marshmallow 4
         new_kwargs = {}
-        metadata = kwargs.get("metadata", {})
+        metadata = kwargs.pop("metadata", {})
         for kwarg_name, kwarg_value in kwargs.items():
             if kwarg_name not in nonmetadata_field_kwargs:
                 metadata[kwarg_name] = kwarg_value
