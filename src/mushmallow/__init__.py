@@ -1,3 +1,5 @@
+"""Mushmallow - a formatting tool for Marshmallow."""
+
 import ast
 import inspect
 import json
@@ -7,68 +9,8 @@ import textwrap
 import black
 import marshmallow
 
-from ._text import indent, wrap_text
-
-
-def repr_ast(ast_, full_call_repr=False):
-    if not isinstance(ast_, ast.AST):
-        raise ValueError(f"{ast_!r} is not an AST type")
-
-    if isinstance(ast_, ast.Name):
-        ret = ast_.id
-
-    elif isinstance(ast_, ast.Constant):
-        ret = format_builtin(ast_.value)
-
-    elif isinstance(ast_, ast.Attribute):
-        ret = f"{repr_ast(ast_.value, full_call_repr=full_call_repr)}.{ast_.attr}"
-
-    elif isinstance(ast_, ast.keyword):
-        ret = f"{ast_.arg}={repr_ast(ast_.value, full_call_repr=full_call_repr)}"
-
-    elif isinstance(ast_, ast.Call):
-        if full_call_repr:
-            ret = f"{repr_ast(ast_.func)}("
-            args = ", ".join(
-                repr_ast(arg, full_call_repr=full_call_repr) for arg in ast_.args
-            )
-            ret += args
-            kwargs = ", ".join(
-                repr_ast(kw, full_call_repr=full_call_repr) for kw in ast_.keywords
-            )
-            if args and kwargs:
-                ret += ", "
-            ret += kwargs
-            ret += ")"
-        else:
-            ret = repr_ast(ast_.func)
-
-    elif isinstance(ast_, ast.Assign):
-        targets = ", ".join(
-            map(lambda x: repr_ast(x, full_call_repr=full_call_repr), ast_.targets)
-        )
-        first_line = (
-            f"{targets} = {repr_ast(ast_.value, full_call_repr=full_call_repr)}"
-        )
-        ret = first_line
-
-    elif isinstance(ast_, ast.List):
-        ret = [repr_ast(elt) for elt in ast_.elts]
-
-    elif isinstance(ast_, ast.ListComp):
-        ret = (
-            f"[{repr_ast(ast_.elt)} "
-            f"for {repr_ast(ast_.generators[0].target)} "
-            f"in {repr_ast(ast_.generators[0].iter)}]"
-        )
-
-    elif isinstance(ast_, ast.Dict):
-        ret = "{}"
-
-    else:
-        raise ValueError(f"Couln't repr {ast_}")
-
-    return ret
+from .text import indent, wrap_text
+from .repr_ast import repr_ast
 
 
 def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=sorted):
@@ -126,9 +68,9 @@ def format_field(
     # Get the pieces we need, i.e. the assignment of the field name, and
     # any args and kwargs passed into the field class.
     initial_indent_spaces = len(field) - len(no_indent)
-    ast_ = ast.parse(no_indent).body
-    assert len(ast_) == 1
-    statement = ast_[0]
+    nodes = ast.parse(no_indent).body
+    assert len(nodes) == 1
+    statement = nodes[0]
     if (
         statement.value.func.value.id == "fields"
         and statement.value.func.attr == "Nested"
