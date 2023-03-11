@@ -2,7 +2,7 @@
 
 import pytest
 
-import mushmallow.text
+from mushmallow import text
 
 
 class TestWrapText:
@@ -10,16 +10,16 @@ class TestWrapText:
 
     def test_one_short_line(self):
         """Test a short line that doesn't need wrapping."""
-        text = "this is short"
-        actual = mushmallow.text.wrap_text(text)
+        text_ = "this is short"
+        actual = text.wrap_text(text_)
 
         expected = ['"this is short"']
         assert actual == expected
 
     def test_one_long_line(self):
         """Test a long line that needs wrapping."""
-        text = "aaaaa " * 20  # 120 character string
-        actual = mushmallow.text.wrap_text(text, width=60)
+        text_ = "aaaaa " * 20  # 120 character string
+        actual = text.wrap_text(text_, width=60)
 
         expected = [
             '"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa "',
@@ -29,8 +29,8 @@ class TestWrapText:
 
     def test_one_long_line__short_width(self):
         """Test a long line that needs a lot of wrapping."""
-        text = "aaaaa " * 20  # 120 character string
-        actual = mushmallow.text.wrap_text(text, width=50)
+        text_ = "aaaaa " * 20  # 120 character string
+        actual = text.wrap_text(text_, width=50)
 
         expected = [
             '"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa "',
@@ -46,7 +46,7 @@ class TestIndent:
     def test_one_line(self):
         """Test indenting a single line."""
         lines = ["this is a line"]
-        actual = mushmallow.text.indent(lines)
+        actual = text.indent(lines)
 
         expected = ["    this is a line"]
         assert actual == expected
@@ -58,7 +58,7 @@ class TestIndent:
             "line two",
             "line three",
         ]
-        actual = mushmallow.text.indent(lines)
+        actual = text.indent(lines)
 
         expected = [
             "    line one",
@@ -73,7 +73,7 @@ class TestIndent:
             "line one",
             "line two",
         ]
-        actual = mushmallow.text.indent(lines, number=3)
+        actual = text.indent(lines, number=3)
 
         expected = [
             "            line one",
@@ -94,7 +94,7 @@ class TestFormatBuiltin:
     )
     def test_input_is_str(self, input_, expected):
         """Test a string input."""
-        actual = mushmallow.text.format_builtin(input_)
+        actual = text.format_builtin(input_)
         assert actual == expected
 
     @pytest.mark.parametrize(
@@ -109,5 +109,5 @@ class TestFormatBuiltin:
     )
     def test_input_is_anything_else(self, input_, expected):
         """Test input is anything but a string."""
-        actual = mushmallow.text.format_builtin(input_)
+        actual = text.format_builtin(input_)
         assert actual == expected
