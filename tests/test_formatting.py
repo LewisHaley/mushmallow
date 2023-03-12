@@ -1,6 +1,12 @@
 """Tests for formatting.py."""
 
+import ast
+
+import pytest
+
 from mushmallow import formatting
+
+# pylint: disable=missing-param-doc,missing-type-doc
 
 
 class TestFormatMetadata:
@@ -141,5 +147,61 @@ class TestMaybeWrapLine:
             '    "veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long "',
             '    "string that needs wrapping"',
             "),",
+        ]
+        assert actual == expected
+
+
+class TestFormatArgs:
+    """Tests for `format_args`."""
+
+    @pytest.mark.parametrize(
+        "input_",
+        [
+            "my_func()",
+            "my_func(var=1, foo=bar)",
+        ],
+    )
+    def test_no_args(self, input_):
+        """Test a call with no args."""
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_args(call)
+
+        expected = []
+        assert actual == expected
+
+    def test_one_arg(self):
+        """Test a call with one arg."""
+        input_ = "my_func(a)"
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_args(call)
+
+        expected = [
+            "a,",
+        ]
+        assert actual == expected
+
+    def test_multiple_args(self):
+        """Test a call with multiple args."""
+        input_ = "my_func(a, 1, True, another_func())"
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_args(call)
+
+        expected = [
+            "a,",
+            "1,",
+            "True,",
+            "another_func(),",
+        ]
+        assert actual == expected
+
+    def test_nested_func_calls(self):
+        """Test a call with nested calls."""
+        input_ = "my_func(another_func(a, b), foobar(True, [1, 2]))"
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_args(call)
+
+        expected = [
+            "another_func(a, b),",
+            "foobar(True, [1, 2]),",
         ]
         assert actual == expected

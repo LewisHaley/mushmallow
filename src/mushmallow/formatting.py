@@ -1,6 +1,9 @@
 """Format output lines."""
 
+import black
+
 from . import text
+from .repr_ast import repr_ast
 
 
 def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=sorted):
@@ -85,3 +88,30 @@ def maybe_wrap_line(first_bit, sep, second_bit, parens, width=80):
         new_lines = [new_line]
 
     return new_lines
+
+
+def format_args(call, max_line_length=80):
+    """Format positional arguments from a function call.
+
+    :param ast.Call call: the call for which to format the position arguments
+    :param int max_line_length: the maximum length of line, including any
+        indentation
+
+    :returns: the list of lines from having formatted the the metadata
+    :rtype: list[str]
+    """
+    # Format each arg, which might go over multiple lines.
+    args = []
+    for arg in call.args:
+        args.extend(
+            black.format_str(
+                repr_ast(arg, full_call_repr=True),
+                mode=black.FileMode(line_length=max_line_length),
+            ).splitlines()
+        )
+
+    arg_lines = [
+        f"{arg}," if not (arg.endswith(",") or arg.endswith("(")) else arg
+        for arg in args
+    ]
+    return arg_lines
