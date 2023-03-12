@@ -63,25 +63,26 @@ def format_field(
     return indented_new_field_lines
 
 
-def fix_marshmallow(
-    file_to_fix,
+def format_marshmallow(
+    lines,
     max_line_length=80,
     indent_size=4,
     fix_kwargs_for_marshmallow_4=False,
     sort=False,
 ):
-    """Fix/Format Marshmallow schemas in a file.
+    """Format Marshmallow schemas in lines of a file.
 
-    :param pathlib.Path file_to_fix: the file to fix
+    :param list[str] lines: the original lines to format
     :param int max_line_length: how many characters per line to allow
     :param int indent_size: the number of spaces per indent
     :param bool fix_kwargs_for_marshmallow_4: If True, convert kwarg fields to
         metadata fields as per Marshmallow 4
     :param bool sort: Sort kwarg and/or metadata fields alphabetically.
         Otherwise order is arbitrary.
-    """
-    lines = file_to_fix.read_text().splitlines()
 
+    :returns: the lines of the file having been formatted
+    :rtype: list[str]
+    """
     if sort:
         sort_func = sorted
     else:
@@ -131,4 +132,4 @@ def fix_marshmallow(
             )
             outlines.extend(field_lines)
 
-    file_to_fix.write_text("\n".join(outlines) + "\n")
+    return outlines
