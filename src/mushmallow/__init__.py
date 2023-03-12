@@ -1,15 +1,12 @@
 """Mushmallow - a formatting tool for Marshmallow."""
 
 import ast
-import inspect
 import json
 import sys
 import textwrap
 
-import marshmallow
-
-from .formatting import format_args, format_metadata, maybe_wrap_line
-from .text import indent, strip_quotes
+from .formatting import format_args, format_kwargs
+from .text import indent
 from .repr_ast import repr_ast
 
 
@@ -41,87 +38,21 @@ def format_field(
     nodes = ast.parse(no_indent).body
     assert len(nodes) == 1
     statement = nodes[0]
-    if (
-        statement.value.func.value.id == "fields"
-        and statement.value.func.attr == "Nested"
-    ):
-        cls = marshmallow.fields.Nested
-    else:
-        cls = marshmallow.fields.Field
-    nonmetadata_field_kwargs = inspect.signature(cls).parameters.keys()
     first_line = repr_ast(statement)
 
     arg_lines = format_args(statement.value, max_line_length=max_line_length)
-
-    def unwrap_ast_dict(dct):
-        """The AST node to unwrap recursively.
-
-        If the node is not a dictionary, it is returned stringified. If any of
-        the fields map to another dictionary, that is also unwrapped.
-
-        :param ast.Dict dct: the dictionary node to unwrap
-
-        :returns: the unwrapped dictionary
-        :rtype: dict
-        """
-        if not isinstance(dct, ast.Dict):
-            return strip_quotes(repr_ast(dct, full_call_repr=True))
-
-        new_dct = {
-            strip_quotes(repr_ast(k)): unwrap_ast_dict(v)
-            for k, v in zip(dct.keys, dct.values)
-        }
-        return new_dct
-
-    # Create kwargs dict. We aren't dealing with long lines here, because we
-    # will do it later if necessary.
-    kwargs = {
-        kw.arg: (
-            unwrap_ast_dict(kw.value)
-            if isinstance(kw.value, ast.Dict)
-            else strip_quotes(repr_ast(kw.value, full_call_repr=True))
-        )
-        for kw in statement.value.keywords
-    }
-
-    if fix_kwargs_for_marshmallow_4:
-        # Fix kwargs for Marshmallow 4
-        new_kwargs = {}
-        metadata = kwargs.pop("metadata", {})
-        for kwarg_name, kwarg_value in kwargs.items():
-            if kwarg_name not in nonmetadata_field_kwargs:
-                metadata[kwarg_name] = kwarg_value
-            else:
-                new_kwargs[kwarg_name] = kwarg_value
-
-        if metadata:
-            new_kwargs["metadata"] = metadata
-
-        kwargs = new_kwargs
+    kwarg_lines = format_kwargs(
+        statement.value,
+        max_line_length=max_line_length,
+        indent_size=indent_size,
+        fix_kwargs_for_marshmallow_4=fix_kwargs_for_marshmallow_4,
+        sort_func=sort_func,
+    )
 
     new_field_lines = [
         f"{first_line}(",
     ]
     new_field_lines.extend(indent(arg_lines))
-    kwarg_lines = []
-    for kwarg_name, kwarg_value in sort_func(kwargs.items()):
-        if kwarg_name == "metadata":
-            meta_lines = format_metadata(
-                kwarg_value,
-                max_line_length=max_line_length,
-                sort_func=sort_func,
-            )
-            kwarg_lines.extend(meta_lines)
-        else:
-            kwarg_lines.extend(
-                maybe_wrap_line(
-                    kwarg_name,
-                    "=",
-                    kwarg_value,
-                    "()",
-                    width=max_line_length - (indent_size * 2),
-                )
-            )
     new_field_lines.extend(indent(kwarg_lines))
     new_field_lines.append(")")  # Close the field definition
 

@@ -205,3 +205,78 @@ class TestFormatArgs:
             "foobar(True, [1, 2]),",
         ]
         assert actual == expected
+
+
+class TestFormatKwargs:
+    """Tests for `format_kwargs`."""
+
+    @pytest.mark.parametrize(
+        "input_",
+        [
+            "my_func()",
+            "my_func(1, bar)",
+        ],
+    )
+    def test_no_kwargs(self, input_):
+        """Test a call with no kwargs."""
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call)
+
+        expected = []
+        assert actual == expected
+
+    def test_one_kwarg(self):
+        """Test a call with one kwarg."""
+        input_ = "my_func(a=1)"
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call)
+
+        expected = [
+            "a=1,",
+        ]
+        assert actual == expected
+
+    def test_multiple_kwargs(self):
+        """Test a call with multiple kwargs."""
+        input_ = 'my_func(a="abc", b=True, func=another_func())'
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call)
+
+        expected = [
+            'a="abc",',
+            "b=True,",
+            "func=another_func(),",
+        ]
+        assert actual == expected
+
+    def test_nested_func_calls(self):
+        """Test a call with nested calls."""
+        input_ = (
+            "my_func("
+            "func_a=another_func(a, b=2), "
+            "func_b=foobar(True, a_list=[1, 2])"
+            ")"
+        )
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call)
+
+        expected = [
+            "func_a=another_func(a, b=2),",
+            "func_b=foobar(True, a_list=[1, 2]),",
+        ]
+        assert actual == expected
+
+    def test_kwargs_to_metadata(self):
+        """Test kwargs are converted to metadata."""
+        input_ = 'fields.Nested(many=True, required=False, example="this")'
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call, fix_kwargs_for_marshmallow_4=True)
+
+        expected = [
+            "many=True,",
+            "metadata={",
+            '    "example": "this",',
+            '    "required": False,',
+            "},",
+        ]
+        assert actual == expected

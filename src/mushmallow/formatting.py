@@ -1,6 +1,10 @@
 """Format output lines."""
 
+import ast
+import inspect
+
 import black
+import marshmallow
 
 from . import text
 from .repr_ast import repr_ast
@@ -115,3 +119,111 @@ def format_args(call, max_line_length=80):
         for arg in args
     ]
     return arg_lines
+
+
+def kwargs_to_metadata(kwargs, nonmetadata_field_kwargs):
+    """Move unknown fields kwargs to metadata.
+
+    This conversion is required for Marshmallow 4. See
+    https://github.com/marshmallow-code/marshmallow/commit/013abfd669f64446cc7954d0320cf5f1d668bd49
+
+    :param dict kwargs: the keyword arguments to a marshmallow field
+    :param list[str] nonmetadata_field_kwargs: the list of valid keyword
+        arguments (and anything else is metadata)
+
+    :returns: the modified kwargs
+    :rtype: dict
+    """
+    new_kwargs = {}
+    metadata = kwargs.pop("metadata", {})
+    for kwarg_name, kwarg_value in kwargs.items():
+        if kwarg_name not in nonmetadata_field_kwargs:
+            metadata[kwarg_name] = kwarg_value
+        else:
+            new_kwargs[kwarg_name] = kwarg_value
+
+    if metadata:
+        new_kwargs["metadata"] = metadata
+    return new_kwargs
+
+
+def format_kwargs(
+    call,
+    max_line_length=80,
+    indent_size=4,
+    fix_kwargs_for_marshmallow_4=False,
+    sort_func=sorted,
+):
+    """Format keyword arguments from a function call.
+
+    :param ast.Call call: the call for which to format the position arguments
+    :param int max_line_length: the maximum length of line, including any
+        indentation
+    :param int indent_size: the number of spaces to add infront of each item in
+    :param bool fix_kwargs_for_marshmallow_4: If True, convert kwarg fields to
+        metadata fields as per Marshmallow 4
+    :param callable sort_func: a function to sort the the metadata items
+
+    :returns: the list of lines from having formatted the the metadata
+    :rtype: list[str]
+    """
+
+    def unwrap_ast_dict(dct):
+        """The AST node to unwrap recursively.
+
+        If the node is not a dictionary, it is returned stringified. If any of
+        the fields map to another dictionary, that is also unwrapped.
+
+        :param ast.Dict dct: the dictionary node to unwrap
+
+        :returns: the unwrapped dictionary
+        :rtype: dict
+        """
+        if not isinstance(dct, ast.Dict):
+            return repr_ast(dct, full_call_repr=True)
+
+        new_dct = {
+            repr_ast(k): unwrap_ast_dict(v) for k, v in zip(dct.keys, dct.values)
+        }
+        return new_dct
+
+    # Create kwargs dict. We aren't dealing with long lines here, because we
+    # will do it later if necessary.
+    kwargs = {
+        kw.arg: (
+            unwrap_ast_dict(kw.value)
+            if isinstance(kw.value, ast.Dict)
+            else repr_ast(kw.value, full_call_repr=True)
+        )
+        for kw in call.keywords
+    }
+
+    if fix_kwargs_for_marshmallow_4:
+        if call.func.value.id == "fields" and call.func.attr == "Nested":
+            cls = marshmallow.fields.Nested
+        else:
+            cls = marshmallow.fields.Field
+        nonmetadata_field_kwargs = inspect.signature(cls).parameters.keys()
+        kwargs = kwargs_to_metadata(kwargs, nonmetadata_field_kwargs)
+
+    kwarg_lines = []
+    for kwarg_name, kwarg_value in sort_func(kwargs.items()):
+        if kwarg_name == "metadata":
+            meta_lines = format_metadata(
+                kwarg_value,
+                max_line_length=max_line_length,
+                sort_func=sort_func,
+            )
+            kwarg_lines.extend(meta_lines)
+        else:
+            kwarg_lines.extend(
+                maybe_wrap_line(
+                    kwarg_name,
+                    "=",
+                    kwarg_value,
+                    "()",
+                    width=max_line_length - (indent_size * 2),
+                )
+            )
+
+    return kwarg_lines
