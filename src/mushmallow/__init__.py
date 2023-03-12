@@ -36,15 +36,6 @@ def format_field(
     field = field.replace('""', "").replace("''", "")
     no_indent = field.lstrip()
 
-    if "Nested(" in field:
-        nonmetadata_field_kwargs = inspect.signature(
-            marshmallow.fields.Nested
-        ).parameters.keys()
-    else:
-        nonmetadata_field_kwargs = inspect.signature(
-            marshmallow.fields.Field
-        ).parameters.keys()
-
     # Get the pieces we need, i.e. the assignment of the field name, and
     # any args and kwargs passed into the field class.
     initial_indent_spaces = len(field) - len(no_indent)
