@@ -128,7 +128,7 @@ def kwargs_to_metadata(kwargs, nonmetadata_field_kwargs):
     https://github.com/marshmallow-code/marshmallow/commit/013abfd669f64446cc7954d0320cf5f1d668bd49
 
     :param dict kwargs: the keyword arguments to a marshmallow field
-    :param list[str] nonmetadata_field_kwargs: the list of valid keyword
+    :param set[str] nonmetadata_field_kwargs: the set of valid keyword
         arguments (and anything else is metadata)
 
     :returns: the modified kwargs
@@ -199,11 +199,13 @@ def format_kwargs(
     }
 
     if fix_kwargs_for_marshmallow_4:
+        nonmetadata_field_kwargs = set(
+            inspect.signature(marshmallow.fields.Field).parameters.keys()
+        )
         if call.func.value.id == "fields" and call.func.attr == "Nested":
-            cls = marshmallow.fields.Nested
-        else:
-            cls = marshmallow.fields.Field
-        nonmetadata_field_kwargs = inspect.signature(cls).parameters.keys()
+            nonmetadata_field_kwargs.update(
+                set(inspect.signature(marshmallow.fields.Nested).parameters.keys())
+            )
         kwargs = kwargs_to_metadata(kwargs, nonmetadata_field_kwargs)
 
     kwarg_lines = []
