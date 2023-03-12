@@ -4,7 +4,7 @@ import argparse
 import difflib
 import pathlib
 
-from . import format_marshmallow
+from .core import format_marshmallow
 
 
 def parse_args():
