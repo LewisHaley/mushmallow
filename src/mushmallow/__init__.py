@@ -6,8 +6,8 @@ import sys
 import textwrap
 
 from .formatting import format_args, format_kwargs
-from .text import indent
 from .repr_ast import repr_ast
+from .text import indent
 
 
 def format_field(
