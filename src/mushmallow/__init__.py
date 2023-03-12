@@ -6,10 +6,9 @@ import json
 import sys
 import textwrap
 
-import black
 import marshmallow
 
-from .formatting import format_metadata, maybe_wrap_line
+from .formatting import format_args, format_metadata, maybe_wrap_line
 from .text import indent, strip_quotes
 from .repr_ast import repr_ast
 
@@ -52,15 +51,7 @@ def format_field(
     nonmetadata_field_kwargs = inspect.signature(cls).parameters.keys()
     first_line = repr_ast(statement)
 
-    # Format each arg, which might go over multiple lines.
-    args = []
-    for arg in statement.value.args:
-        args.extend(
-            black.format_str(
-                repr_ast(arg, full_call_repr=True),
-                mode=black.FileMode(line_length=max_line_length),
-            ).splitlines()
-        )
+    arg_lines = format_args(statement.value, max_line_length=max_line_length)
 
     def unwrap_ast_dict(dct):
         """The AST node to unwrap recursively.
@@ -110,10 +101,6 @@ def format_field(
 
     new_field_lines = [
         f"{first_line}(",
-    ]
-    arg_lines = [
-        f"{arg}," if not (arg.endswith(",") or arg.endswith("(")) else arg
-        for arg in args
     ]
     new_field_lines.extend(indent(arg_lines))
     kwarg_lines = []
