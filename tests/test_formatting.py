@@ -274,9 +274,9 @@ class TestFormatKwargs:
 
         expected = [
             "many=True,",
+            "required=False,",
             "metadata={",
             '    "example": "this",',
             "},",
-            "required=False,",
         ]
         assert actual == expected
