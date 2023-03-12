@@ -198,7 +198,8 @@ def format_kwargs(
             return repr_ast(dct, full_call_repr=True)
 
         new_dct = {
-            repr_ast(k): unwrap_ast_dict(v) for k, v in zip(dct.keys, dct.values)
+            text.strip_quotes(repr_ast(k)): unwrap_ast_dict(v)
+            for k, v in zip(dct.keys, dct.values)
         }
         return new_dct
 
