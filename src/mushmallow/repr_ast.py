@@ -38,6 +38,15 @@ def repr_ast(node, full_call_repr=False):
         ast.Dict: _repr_dict,
         ast.Expr: _repr_expr,
         ast.Tuple: _repr_tuple,
+        ast.JoinedStr: _repr_joinedstr,
+        ast.FormattedValue: _repr_formattedvalue,
+        ast.BinOp: _repr_binop,
+        ast.Add: lambda *_: "+",
+        ast.Sub: lambda *_: "-",
+        ast.Mult: lambda *_: "*",
+        ast.Pow: lambda *_: "**",
+        ast.Div: lambda *_: "/",
+        ast.Mod: lambda *_: "%",
     }
 
     if repr_func := node_func_mapping.get(node.__class__):
@@ -210,3 +219,44 @@ def _repr_tuple(node, full_call_repr):
     """
     elts = [repr_ast(elt, full_call_repr) for elt in node.elts]
     return f"({', '.join(elts)})"
+
+
+def _repr_joinedstr(node, full_call_repr):
+    """Repr an `ast.JoinedStr`.
+
+    :param ast.JoinedStr node:
+    :param bool full_call_repr:
+
+    :returns: the repr'd node
+    :rtype: str
+    """
+    return f'f"{"".join(text.strip_quotes(repr_ast(v, full_call_repr)) for v in node.values)}"'
+
+
+def _repr_formattedvalue(node, full_call_repr):
+    """Repr an `ast.FormattedValue`.
+
+    :param ast.FormattedValue node:
+    :param bool full_call_repr:
+
+    :returns: the repr'd node
+    :rtype: str
+    """
+    return f"{{{repr_ast(node.value, full_call_repr)}}}"
+
+
+def _repr_binop(node, full_call_repr):
+    """Repr an `ast.BinOp`.
+
+    :param ast.BinOp node:
+    :param bool full_call_repr:
+
+    :returns: the repr'd node
+    :rtype: str
+    """
+    ret = (
+        f"{repr_ast(node.left, full_call_repr)} "
+        f"{repr_ast(node.op, full_call_repr)} "
+        f"{repr_ast(node.right, full_call_repr)}"
+    )
+    return ret
