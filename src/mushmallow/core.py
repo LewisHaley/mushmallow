@@ -11,7 +11,7 @@ def format_field(
     field,
     indent_size=4,
     max_line_length=80,
-    fix_kwargs_for_marshmallow_4=True,
+    fix_kwargs_for_marshmallow_4=False,
     sort_func=noop,
 ):
     """Format a single field into lines of text.
