@@ -21,6 +21,18 @@ def format_field(
     fix_kwargs_for_marshmallow_4=True,
     sort_func=sorted,
 ):
+    """Format a single field into lines of text.
+
+    :param str field: a single string containing the definition of an entire
+    :param int indent_size: the number of spaces per indent
+    :param int max_line_length: how many characters per line to allow
+    :param bool fix_kwargs_for_marshmallow_4: If True, convert kwarg fields to
+        metadata fields as per Marshmallow 4
+    :param callable sort_func: a function to sort the field kwargs
+
+    :returns: the list of lines having formatted the field string
+    :rtype: list[str]
+    """
     field = field.replace('""', "").replace("''", "")
     no_indent = field.lstrip()
 
@@ -63,6 +75,16 @@ def format_field(
         )
 
     def unwrap_ast_dict(dct):
+        """The AST node to unwrap recursively.
+
+        If the node is not a dictionary, it is returned stringified. If any of
+        the fields map to another dictionary, that is also unwrapped.
+
+        :param ast.Dict dct: the dictionary node to unwrap
+
+        :returns: the unwrapped dictionary
+        :rtype: dict
+        """
         if not isinstance(dct, ast.Dict):
             return strip_quotes(repr_ast(dct, full_call_repr=True))
 
@@ -157,7 +179,7 @@ def fix_marshmallow(
     if sort:
         sort_func = sorted
     else:
-        sort_func = lambda it, **_: it
+        sort_func = lambda it, **_: it  # pylint: disable=unnecessary-lambda-assignment
 
     outlines = []
     inside_schema = False
