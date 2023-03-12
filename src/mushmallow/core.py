@@ -46,12 +46,17 @@ def format_field(
         sort_func=sort_func,
     )
 
-    new_field_lines = [
-        f"{first_line}(",
-    ]
-    new_field_lines.extend(indent(arg_lines))
-    new_field_lines.extend(indent(kwarg_lines))
-    new_field_lines.append(")")  # Close the field definition
+    if not (arg_lines or kwarg_lines):
+        new_field_lines = [
+            f"{first_line}()",
+        ]
+    else:
+        new_field_lines = [
+            f"{first_line}(",
+        ]
+        new_field_lines.extend(indent(arg_lines))
+        new_field_lines.extend(indent(kwarg_lines))
+        new_field_lines.append(")")  # Close the field definition
 
     indented_new_field_lines = indent(
         new_field_lines,
