@@ -46,13 +46,10 @@ def format_field(
         statement.value.func.value.id == "fields"
         and statement.value.func.attr == "Nested"
     ):
-        nonmetadata_field_kwargs = inspect.signature(
-            marshmallow.fields.Nested
-        ).parameters.keys()
+        cls = marshmallow.fields.Nested
     else:
-        nonmetadata_field_kwargs = inspect.signature(
-            marshmallow.fields.Field
-        ).parameters.keys()
+        cls = marshmallow.fields.Field
+    nonmetadata_field_kwargs = inspect.signature(cls).parameters.keys()
     first_line = repr_ast(statement)
 
     # Format each arg, which might go over multiple lines.
