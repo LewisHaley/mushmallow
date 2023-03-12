@@ -276,7 +276,7 @@ class TestFormatKwargs:
             "many=True,",
             "metadata={",
             '    "example": "this",',
-            '    "required": False,',
             "},",
+            "required=False,",
         ]
         assert actual == expected
