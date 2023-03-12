@@ -5,7 +5,7 @@ import json
 import sys
 import textwrap
 
-from .formatting import format_args, format_kwargs
+from .formatting import format_args, format_kwargs, noop
 from .repr_ast import repr_ast
 from .text import indent
 
@@ -15,7 +15,7 @@ def format_field(
     indent_size=4,
     max_line_length=80,
     fix_kwargs_for_marshmallow_4=True,
-    sort_func=sorted,
+    sort_func=noop,
 ):
     """Format a single field into lines of text.
 
@@ -86,7 +86,7 @@ def format_marshmallow(
     if sort:
         sort_func = sorted
     else:
-        sort_func = lambda it, **_: it  # pylint: disable=unnecessary-lambda-assignment
+        sort_func = noop
 
     outlines = []
     inside_schema = False

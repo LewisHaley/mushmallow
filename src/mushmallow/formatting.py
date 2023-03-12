@@ -10,7 +10,13 @@ from . import text
 from .repr_ast import repr_ast
 
 
-def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=sorted):
+def noop(first_arg, *args, **kwargs):  # pylint: disable=unused-argument
+    # pylint: disable=missing-function-docstring
+    # pylint: disable=missing-return-doc, missing-return-type-doc
+    return first_arg
+
+
+def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=noop):
     """Format the metadata dictionary for Marshmallow.
 
     The lines of text returned here are the "final" lines, minus any leading
@@ -152,7 +158,7 @@ def format_kwargs(
     max_line_length=80,
     indent_size=4,
     fix_kwargs_for_marshmallow_4=False,
-    sort_func=sorted,
+    sort_func=noop,
 ):
     """Format keyword arguments from a function call.
 
