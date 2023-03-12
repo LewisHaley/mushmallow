@@ -40,7 +40,7 @@ def indent(lines, indent_size=4, number=1):
     :returns: the list of indented lines:
     :rtype: list[str]
     """
-    assert number >= 1
+    assert number >= 0
     spaces = " " * indent_size * number
     new_lines = [f"{spaces}{line}" for line in lines]
     return new_lines
