@@ -144,3 +144,35 @@ class TestReprAst:
         node = ast.parse(input_).body[0]
         actual = repr_ast(node, full_call_repr=True)
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ("1 - 1", "1 - 1"),
+            ('"a" + "b"', '"a" + "b"'),
+            ("0 / 2", "0 / 2"),
+            ("2 * 2", "2 * 2"),
+            ("2 ** 2", "2 ** 2"),
+            ("2 % 2", "2 % 2"),
+        ],
+    )
+    def test_repr_binop(self, input_, expected):
+        """Test ast.BinOp."""
+        node = ast.parse(input_).body[0]
+        actual = repr_ast(node, full_call_repr=True)
+        assert actual == expected
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ("f'this'", 'f"this"'),
+            ('f"this"', 'f"this"'),
+            ('f"a {b} c"', 'f"a {b} c"'),
+            ('f"a {b} c {last}"', 'f"a {b} c {last}"'),
+        ],
+    )
+    def test_repr_joinedstr(self, input_, expected):
+        """Test ast.JoinedStr."""
+        node = ast.parse(input_).body[0]
+        actual = repr_ast(node, full_call_repr=True)
+        assert actual == expected
