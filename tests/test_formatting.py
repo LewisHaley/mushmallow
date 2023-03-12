@@ -280,3 +280,31 @@ class TestFormatKwargs:
             "},",
         ]
         assert actual == expected
+
+    def test_long_nonstring(self):
+        """Test wrapping a long kwarg that is not a string."""
+        input_ = (
+            "fields.Nested("
+            "fields.String(), "
+            "foo=True, "
+            "bar=[1, 2, 3], "
+            "validate=this_is_a_long_function("
+            "that_calls_other_stuff("
+            "other_stuff(), more_other_stuff(an_arg=True), even_more_stuff(), "
+            ")), "
+            'description="a description")'
+        )
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call)
+
+        expected = [
+            "foo=True,",
+            "bar=[1, 2, 3],",
+            "validate=this_is_a_long_function(",
+            "    that_calls_other_stuff(",
+            "        other_stuff(), more_other_stuff(an_arg=True), even_more_stuff()",
+            "    )",
+            "),",
+            'description="a description",',
+        ]
+        assert actual == expected

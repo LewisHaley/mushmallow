@@ -87,13 +87,22 @@ def maybe_wrap_line(first_bit, sep, second_bit, parens, width=80):
     """
     new_line = f"{first_bit}{sep}{second_bit},"
     if len(new_line) > width:
-        # Strip the quotes off each end of the text, we'll requote later
-        second_bit = text.strip_quotes(second_bit)
+        if second_bit.startswith('"') and second_bit.endswith('"'):
+            # Strip the quotes off each end of the text, we'll requote later
+            second_bit = text.strip_quotes(second_bit)
 
-        wrapped_lines = text.indent(text.wrap_text(second_bit, width=width))
-        new_lines = [f"{first_bit}{sep}{parens[0]}"]
-        new_lines.extend(wrapped_lines)
-        new_lines.append(f"{parens[1]},")
+            wrapped_lines = text.indent(text.wrap_text(second_bit, width=width))
+            new_lines = [f"{first_bit}{sep}{parens[0]}"]
+            new_lines.extend(wrapped_lines)
+            new_lines.append(f"{parens[1]},")
+        else:
+            new_lines = black.format_str(
+                second_bit,
+                mode=black.FileMode(line_length=width),
+            ).splitlines()
+            new_lines[0] = f"{first_bit}{sep}{new_lines[0]}"
+            new_lines[-1] = f"{new_lines[-1]},"
+
     else:
         new_lines = [new_line]
 
