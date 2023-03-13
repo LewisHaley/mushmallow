@@ -276,3 +276,41 @@ class TestFormatMarshmallow:
             "another_field = fields.String(validate=validator_func)",
         ]
         assert actual == expected
+
+    def test_empty_string(self):
+        """Test that empty strings are handled properly."""
+        input_ = [
+            "class MySchema(Schema):",
+            "    foo = fields.String(",
+            '        missing="",',
+            "    )",
+        ]
+        actual = core.format_marshmallow(input_)
+        expected = [
+            "class MySchema(Schema):",
+            "    foo = fields.String(",
+            '        missing="",',
+            "    )",
+        ]
+        assert actual == expected
+
+    def test_multiline_string(self):
+        """Test that multi-line strings are handled properly."""
+        input_ = [
+            "class MySchema(Schema):",
+            "    foo = fields.String(",
+            '        missing="abcde fghij klmno qrstu vwxyz 123 456 789"',
+            '                "abcde fghij klmno qrstu vwxyz 123 456 789"',
+            "    )",
+        ]
+        actual = core.format_marshmallow(input_, max_line_length=55)
+        expected = [
+            "class MySchema(Schema):",
+            "    foo = fields.String(",
+            "        missing=(",
+            '            "abcde fghij klmno qrstu vwxyz 123 456 789abcde "',
+            '            "fghij klmno qrstu vwxyz 123 456 789"',
+            "        ),",
+            "    )",
+        ]
+        assert actual == expected

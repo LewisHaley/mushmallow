@@ -26,7 +26,6 @@ def format_field(
     :returns: the list of lines having formatted the field string
     :rtype: list[str]
     """
-    field = field.replace('""', "").replace("''", "")
     no_indent = field.lstrip()
 
     # Get the pieces we need, i.e. the assignment of the field name, and
