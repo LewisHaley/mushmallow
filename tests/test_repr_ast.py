@@ -176,3 +176,31 @@ class TestReprAst:
         node = ast.parse(input_).body[0]
         actual = repr_ast(node, full_call_repr=True)
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ("{}", "{}"),
+            ("{1}", "{1}"),
+            ("{1, 2}", "{1, 2}"),
+            ('{"a", "b"}', '{"a", "b"}'),
+        ],
+    )
+    def test_repr_set(self, input_, expected):
+        """Test ast.Set."""
+        node = ast.parse(input_).body[0]
+        actual = repr_ast(node)
+        assert actual == expected
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ("{a for a in my_set}", "{a for a in my_set}"),
+            ("{a for a in my_gen()}", "{a for a in my_gen()}"),
+        ],
+    )
+    def test_repr_setcomp(self, input_, expected):
+        """Test ast.SetComp."""
+        node = ast.parse(input_).body[0]
+        actual = repr_ast(node, full_call_repr=True)
+        assert actual == expected

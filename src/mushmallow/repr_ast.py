@@ -35,6 +35,8 @@ def repr_ast(node, full_call_repr=False):
         ast.Assign: _repr_assign,
         ast.List: _repr_list,
         ast.ListComp: _repr_listcomp,
+        ast.Set: _repr_set,
+        ast.SetComp: _repr_setcomp,
         ast.Dict: _repr_dict,
         ast.Expr: _repr_expr,
         ast.Tuple: _repr_tuple,
@@ -258,5 +260,47 @@ def _repr_binop(node, full_call_repr):
         f"{repr_ast(node.left, full_call_repr)} "
         f"{repr_ast(node.op, full_call_repr)} "
         f"{repr_ast(node.right, full_call_repr)}"
+    )
+    return ret
+
+
+def _repr_set(node, full_call_repr):
+    """Repr an `ast.Set`.
+
+    :param ast.Set node:
+    :param bool full_call_repr:
+
+    :returns: the repr'd node
+    :rtype: str
+    """
+    # TODO: This is identical to a list-comp except for using curly-brackets
+    # rather than square-brackets
+    elts = [repr_ast(elt, full_call_repr) for elt in node.elts]
+    return f"{{{', '.join(elts)}}}"
+
+
+def _repr_setcomp(node, full_call_repr):
+    """Repr an `ast.SetComp`.
+
+    :param ast.SetComp node:
+    :param bool full_call_repr:
+
+    :returns: the repr'd node
+    :rtype: str
+    """
+    # TODO: We're only considering a single generator expression
+    # TODO: This is identical to a list-comp except for using curly-brackets
+    # rather than square-brackets
+    gen = node.generators[0]
+
+    if isinstance(gen.target, ast.Tuple):
+        target = f"{', '.join(repr_ast(elt) for elt in gen.target.elts)}"
+    else:
+        target = repr_ast(gen.target)
+
+    ret = (
+        f"{{{repr_ast(node.elt)} "
+        f"for {target} "
+        f"in {repr_ast(gen.iter, full_call_repr)}}}"
     )
     return ret
