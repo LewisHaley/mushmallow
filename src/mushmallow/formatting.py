@@ -86,12 +86,19 @@ def maybe_wrap_line(first_bit, sep, second_bit, parens, width=80):
         line and returned as a single-element list
     :rtype: list[str]
     """
-    new_line = f"{first_bit}{sep}{second_bit},"
-    if len(new_line) > width:
-        if second_bit.startswith('"') and second_bit.endswith('"'):
-            # Strip the quotes off each end of the text, we'll requote later
-            second_bit = text.strip_quotes(second_bit)
+    is_string = second_bit.startswith('"') and second_bit.endswith('"')
+    quote = ""
+    if is_string:
+        # Strip the quotes off each end of the text, we'll requote later
+        second_bit = text.strip_quotes(second_bit)
+        # We're going to quote in double quotes, so we have to escape any double
+        # quotes within the string.
+        second_bit = second_bit.replace('"', '\\"')
+        quote = '"'
 
+    new_line = f"{first_bit}{sep}{quote}{second_bit}{quote},"
+    if len(new_line) > width:
+        if is_string:
             wrapped_lines = text.indent(text.wrap_text(second_bit, width=width))
             new_lines = [f"{first_bit}{sep}{parens[0]}"]
             new_lines.extend(wrapped_lines)
