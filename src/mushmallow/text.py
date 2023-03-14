@@ -17,10 +17,7 @@ def wrap_text(text, width=80):
     :rtype: list[str]
     """
     # Strip the quotes off each end of the text, we'll requote later
-    if (
-        text[0] == "\"" and text[-1] == "\""
-        and text[0] == "'" and text[-1] == "'"
-    ):
+    if text[0] == '"' and text[-1] == '"' and text[0] == "'" and text[-1] == "'":
         text = text[1:-1]
     wrapped_lines = textwrap.wrap(text, width=width)
     # Add a space at the end of every line except the last one
@@ -60,7 +57,7 @@ def format_builtin(obj):
     :rtype: str
     """
     if isinstance(obj, str):
-        ret = f"\"{obj}\""
+        ret = f'"{obj}"'
     else:
         ret = str(obj)
     return ret

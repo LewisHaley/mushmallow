@@ -30,13 +30,11 @@ def repr_ast(ast_, full_call_repr=False):
         if full_call_repr:
             ret = f"{repr_ast(ast_.func)}("
             args = ", ".join(
-                repr_ast(arg, full_call_repr=full_call_repr)
-                for arg in ast_.args
+                repr_ast(arg, full_call_repr=full_call_repr) for arg in ast_.args
             )
             ret += args
             kwargs = ", ".join(
-                repr_ast(kw, full_call_repr=full_call_repr)
-                for kw in ast_.keywords
+                repr_ast(kw, full_call_repr=full_call_repr) for kw in ast_.keywords
             )
             if args and kwargs:
                 ret += ", "
@@ -46,11 +44,12 @@ def repr_ast(ast_, full_call_repr=False):
             ret = repr_ast(ast_.func)
 
     elif isinstance(ast_, ast.Assign):
-        targets = ", ".join(map(
-            lambda x: repr_ast(x, full_call_repr=full_call_repr),
-            ast_.targets
-        ))
-        first_line = f"{targets} = {repr_ast(ast_.value, full_call_repr=full_call_repr)}"
+        targets = ", ".join(
+            map(lambda x: repr_ast(x, full_call_repr=full_call_repr), ast_.targets)
+        )
+        first_line = (
+            f"{targets} = {repr_ast(ast_.value, full_call_repr=full_call_repr)}"
+        )
         ret = first_line
 
     elif isinstance(ast_, ast.List):
@@ -72,18 +71,21 @@ def repr_ast(ast_, full_call_repr=False):
     return ret
 
 
-def format_metadata(
-    metadata, indent_size=4, max_line_length=80, sort_func=sorted
-):
+def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=sorted):
     meta_lines = [
         "metadata={",
     ]
     items = []
     for meta_name, meta_value in sort_func(metadata.items()):
-        items.extend(maybe_wrap_line(
-            meta_name, ": ", meta_value, "()",
-            width=max_line_length - (indent_size * 2),
-        ))
+        items.extend(
+            maybe_wrap_line(
+                meta_name,
+                ": ",
+                meta_value,
+                "()",
+                width=max_line_length - (indent_size * 2),
+            )
+        )
     meta_lines.extend(indent(items))
     meta_lines.append("},")
     return meta_lines
@@ -109,7 +111,7 @@ def format_field(
     fix_kwargs_for_marshmallow_4=True,
     sort_func=sorted,
 ):
-    field = field.replace("\"\"", "").replace("''", "")
+    field = field.replace('""', "").replace("''", "")
     no_indent = field.lstrip()
 
     if "Nested(" in field:
@@ -176,12 +178,7 @@ def format_field(
         f"{first_line}(",
     ]
     arg_lines = [
-        f"{arg},"
-        if not (
-            arg.endswith(",")
-            or arg.endswith("(")
-        )
-        else arg
+        f"{arg}," if not (arg.endswith(",") or arg.endswith("(")) else arg
         for arg in args
     ]
     new_field_lines.extend(indent(arg_lines))
@@ -195,10 +192,15 @@ def format_field(
             )
             kwarg_lines.extend(meta_lines)
         else:
-            kwarg_lines.extend(maybe_wrap_line(
-                kwarg_name, "=", kwarg_value, "()",
-                width=max_line_length - (indent_size * 2),
-            ))
+            kwarg_lines.extend(
+                maybe_wrap_line(
+                    kwarg_name,
+                    "=",
+                    kwarg_value,
+                    "()",
+                    width=max_line_length - (indent_size * 2),
+                )
+            )
     new_field_lines.extend(indent(kwarg_lines))
     new_field_lines.append(")")  # Close the field definition
 
