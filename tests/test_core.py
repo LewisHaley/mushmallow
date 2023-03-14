@@ -367,3 +367,36 @@ class TestFormatMarshmallow:
             "    )",
         ]
         assert actual == expected
+
+    def test_blank_lines_within_schema(self):
+        """Test that blank lines within a schema don't matter."""
+        input_ = [
+            "class MySchema(Schema):",
+            "    foo = fields.String()",
+            "",
+            "    bar = fields.Boolean()",
+            "",
+            "    qux = fields.Integer()",
+            "",
+            "",
+            "class AnotherSchema():",
+            "",
+            "    thing = fields.List()",
+            "",
+        ]
+        actual = core.format_marshmallow(input_)
+        expected = [
+            "class MySchema(Schema):",
+            "    foo = fields.String()",
+            "",
+            "    bar = fields.Boolean()",
+            "",
+            "    qux = fields.Integer()",
+            "",
+            "",
+            "class AnotherSchema():",
+            "",
+            "    thing = fields.List()",
+            "",
+        ]
+        assert actual == expected

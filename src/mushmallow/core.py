@@ -125,7 +125,7 @@ def format_marshmallow(
         # object which ends with "Schema".
         if line.strip().startswith("class ") and line.endswith("Schema):"):
             inside_schema = True
-        elif line.strip().startswith("def ") or not line:
+        elif line and not line.startswith(" "):
             inside_schema = False
 
         if not inside_schema:
