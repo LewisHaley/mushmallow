@@ -204,3 +204,16 @@ class TestReprAst:
         node = ast.parse(input_).body[0]
         actual = repr_ast(node, full_call_repr=True)
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ("lambda: True", "lambda: True"),
+            ("lambda x: int(x)", "lambda x: int(x)"),
+        ],
+    )
+    def test_repr_lambda(self, input_, expected):
+        """Test ast.Lambda."""
+        node = ast.parse(input_).body[0]
+        actual = repr_ast(node, full_call_repr=True)
+        assert actual == expected

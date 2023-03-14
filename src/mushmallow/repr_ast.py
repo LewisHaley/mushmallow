@@ -30,6 +30,7 @@ def repr_ast(node, full_call_repr=False):
         ast.Name: _repr_name,
         ast.Constant: _repr_constant,
         ast.Attribute: _repr_attribute,
+        ast.arguments: _repr_arguments,
         ast.keyword: _repr_keyword,
         ast.Call: _repr_call,
         ast.Assign: _repr_assign,
@@ -49,6 +50,7 @@ def repr_ast(node, full_call_repr=False):
         ast.Pow: lambda *_: "**",
         ast.Div: lambda *_: "/",
         ast.Mod: lambda *_: "%",
+        ast.Lambda: _repr_lambda,
     }
 
     if repr_func := node_func_mapping.get(node.__class__):
@@ -93,6 +95,19 @@ def _repr_attribute(node, full_call_repr):
     :rtype: str
     """
     return f"{repr_ast(node.value, full_call_repr)}.{node.attr}"
+
+
+def _repr_arguments(node, full_call_repr):  # pylint: disable=unused-argument
+    """Repr an `ast.keyword`.
+
+    :param ast.keyword node:
+    :param bool full_call_repr:
+
+    :returns: the repr'd node
+    :rtype: str
+    """
+    # TODO: This is incompled and only supports positional arguments
+    return ", ".join(arg.arg for arg in node.args)
 
 
 def _repr_keyword(node, full_call_repr):
@@ -303,4 +318,22 @@ def _repr_setcomp(node, full_call_repr):
         f"for {target} "
         f"in {repr_ast(gen.iter, full_call_repr)}}}"
     )
+    return ret
+
+
+def _repr_lambda(node, full_call_repr):
+    """Repr an `ast.Lambda`.
+
+    :param ast.Lambda node:
+    :param bool full_call_repr:
+
+    :returns: the repr'd node
+    :rtype: str
+    """
+    ret = "lambda"
+    args = repr_ast(node.args, full_call_repr)
+    if args:
+        ret += f" {args}"
+    ret += ": "
+    ret += f"{repr_ast(node.body, full_call_repr)}"
     return ret
