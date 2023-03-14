@@ -308,3 +308,16 @@ class TestFormatKwargs:
             'description="a description",',
         ]
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ("fields.Dict(example={})", ["example={},"]),
+            ('fields.Dict(example={"foo": "bar"})', ['example={"foo": "bar"},']),
+        ],
+    )
+    def test_is_dict(self, input_, expected):
+        """Test when metadata contains a dictionary."""
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call)
+        assert actual == expected

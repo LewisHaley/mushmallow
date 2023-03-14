@@ -2,6 +2,7 @@
 
 import ast
 import inspect
+import json
 
 import black
 import marshmallow
@@ -195,7 +196,7 @@ def format_kwargs(
         :rtype: dict
         """
         if not isinstance(dct, ast.Dict):
-            return repr_ast(dct, full_call_repr=True)
+            return text.strip_quotes(repr_ast(dct, full_call_repr=True))
 
         new_dct = {
             text.strip_quotes(repr_ast(k)): unwrap_ast_dict(v)
@@ -234,6 +235,9 @@ def format_kwargs(
             )
             kwarg_lines.extend(meta_lines)
         else:
+            if isinstance(kwarg_value, dict):
+                kwarg_value = json.dumps(kwarg_value)
+
             kwarg_lines.extend(
                 maybe_wrap_line(
                     kwarg_name,
