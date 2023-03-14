@@ -321,3 +321,26 @@ class TestFormatKwargs:
         call = ast.parse(input_).body[0].value
         actual = formatting.format_kwargs(call)
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            (
+                "fields.String(example=\"this is 'quoted'\")",
+                ["example=\"this is 'quoted'\","],
+            ),
+            (
+                "fields.String(example='this is \"quoted\"')",
+                ['example="this is \\"quoted\\"",'],
+            ),
+        ],
+    )
+    def test_string_contains_quotes(self, input_, expected):
+        """Test strings containing quotes are escaped if necessary."""
+        call = ast.parse(input_).body[0].value
+        actual = formatting.format_kwargs(call)
+        print("actual")
+        print("\n".join(actual))
+        print("expected")
+        print("\n".join(expected))
+        assert actual == expected
