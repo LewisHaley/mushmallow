@@ -13,7 +13,7 @@ class TestWrapText:
         text = "this is short"
         actual = mushmallow.text.wrap_text(text)
 
-        expected = ["\"this is short\""]
+        expected = ['"this is short"']
         assert actual == expected
 
     def test_one_long_line(self):
@@ -22,8 +22,8 @@ class TestWrapText:
         actual = mushmallow.text.wrap_text(text, width=60)
 
         expected = [
-            "\"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa \"",
-            "\"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa\"",
+            '"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa "',
+            '"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa"',
         ]
         assert actual == expected
 
@@ -33,9 +33,9 @@ class TestWrapText:
         actual = mushmallow.text.wrap_text(text, width=50)
 
         expected = [
-            "\"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa \"",
-            "\"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa \"",
-            "\"aaaaa aaaaa aaaaa aaaaa\"",
+            '"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa "',
+            '"aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa "',
+            '"aaaaa aaaaa aaaaa aaaaa"',
         ]
         assert actual == expected
 
@@ -85,22 +85,28 @@ class TestIndent:
 class TestFormatBuiltin:
     """Tests for `format_builtin`."""
 
-    @pytest.mark.parametrize("input_, expected", [
-        ("a string", "\"a string\""),
-        ("\"a quoted string\"", "\"\"a quoted string\"\""),
-    ])
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            ("a string", '"a string"'),
+            ('"a quoted string"', '""a quoted string""'),
+        ],
+    )
     def test_input_is_str(self, input_, expected):
         """Test a string input."""
         actual = mushmallow.text.format_builtin(input_)
         assert actual == expected
 
-    @pytest.mark.parametrize("input_, expected", [
-        (1, "1"),
-        ([], "[]"),
-        ([1, 2, 3], "[1, 2, 3]"),
-        ({}, "{}"),
-        ({"a": 1}, "{'a': 1}"),
-    ])
+    @pytest.mark.parametrize(
+        "input_, expected",
+        [
+            (1, "1"),
+            ([], "[]"),
+            ([1, 2, 3], "[1, 2, 3]"),
+            ({}, "{}"),
+            ({"a": 1}, "{'a': 1}"),
+        ],
+    )
     def test_input_is_anything_else(self, input_, expected):
         """Test input is anything but a string."""
         actual = mushmallow.text.format_builtin(input_)
