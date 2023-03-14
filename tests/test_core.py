@@ -314,3 +314,56 @@ class TestFormatMarshmallow:
             "    )",
         ]
         assert actual == expected
+
+    def test_comments_are_preserved(self):
+        """Test that comments are preserved."""
+        input_ = [
+            "# Leading comment.",
+            "class MySchema(Schema):",
+            "    # Actually it's an integer",
+            "    foo = fields.String()",
+            "    bar = fields.Boolean(",
+            "        # Internal comment",
+            "        required=True,",
+            "    )",
+        ]
+        actual = core.format_marshmallow(input_)
+        expected = [
+            "# Leading comment.",
+            "class MySchema(Schema):",
+            "    # Actually it's an integer",
+            "    foo = fields.String()",
+            "    bar = fields.Boolean(",
+            "        # Internal comment",
+            "        required=True,",
+            "    )",
+        ]
+        assert actual == expected
+
+    @pytest.mark.xfail(reason="AST gets rid of them")
+    def test_end_of_line_comments_are_preserved(self):
+        """Test that end-of_line comments are preserved."""
+        input_ = [
+            "# Leading comment.",
+            "class MySchema(Schema):",
+            "    # Actually it's an integer",
+            "    foo = fields.String()",
+            "    bar = fields.Boolean(",
+            "        # Internal comment",
+            "        required=True,",
+            "        allow_none=True,  # inline comment",
+            "    )",
+        ]
+        actual = core.format_marshmallow(input_)
+        expected = [
+            "# Leading comment.",
+            "class MySchema(Schema):",
+            "    # Actually it's an integer",
+            "    foo = fields.String()",
+            "    bar = fields.Boolean(",
+            "        # Internal comment",
+            "        required=True,",
+            "        allow_none=True,  # end-of-line comment",
+            "    )",
+        ]
+        assert actual == expected

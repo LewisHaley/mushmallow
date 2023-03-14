@@ -1,6 +1,7 @@
 """Core functionality for Mushmallow."""
 
 import ast
+import difflib
 
 from .formatting import format_args, format_kwargs, noop
 from .repr_ast import repr_ast
@@ -61,7 +62,33 @@ def format_field(
         new_field_lines,
         number=initial_indent_spaces // indent_size,
     )
-    return indented_new_field_lines
+    return restore_comments(field.splitlines(), indented_new_field_lines)
+
+
+def restore_comments(orig_lines, new_lines):
+    """Restore comments that were stripped out by AST.
+
+    :param list[str] orig_lines: the original lines, before formatting
+    :param list[str] new_lines: lines post-formatting
+
+    :returns: the new lines, with comments added back in in the same place
+    :rtype: list[str]
+    """
+    diff = difflib.ndiff(orig_lines, new_lines)
+    outlines = []
+    for line in diff:
+        prefix = line[:2]
+        line = line[2:]
+        if prefix == "? ":
+            continue
+
+        if prefix == "- ":
+            if line.lstrip().startswith("#"):
+                outlines.append(line)
+        else:
+            outlines.append(line)
+
+    return outlines
 
 
 def format_marshmallow(
@@ -112,7 +139,7 @@ def format_marshmallow(
         if inside_field:
             # Accumulate all lines within a field definition, suppressing output
             # until we accumulate a whole definition.
-            curr_field += line.strip() if curr_field else line
+            curr_field += f"{line}\n"
         else:
             outlines.append(line)
 
