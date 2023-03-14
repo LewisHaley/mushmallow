@@ -2,6 +2,8 @@
 
 import ast
 import difflib
+import sys
+import traceback
 
 from .formatting import format_args, format_kwargs, noop
 from .repr_ast import repr_ast
@@ -161,3 +163,25 @@ def format_marshmallow(
             outlines.extend(field_lines)
 
     return outlines
+
+
+def validate(new_lines):
+    """Check input lines as valid Python syntax.
+
+    :param list[str] new_lines:
+
+    :returns: True if the lines are valid, else False
+    :rtype: bool
+    """
+    ret = True
+    try:
+        ast.parse("\n".join(new_lines), filename="the new file")
+    except SyntaxError as exc:
+        ret = False
+        print("Failed to  generate valid syntax after fixing file", file=sys.stderr)
+        print(traceback.format_exc(limit=0), file=sys.stderr)
+        context = 5
+        relevant_lines = new_lines[exc.lineno - context : exc.lineno + context]
+        print("\n".join(relevant_lines), file=sys.stderr)
+
+    return ret

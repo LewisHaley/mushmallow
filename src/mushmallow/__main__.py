@@ -3,8 +3,9 @@
 import argparse
 import difflib
 import pathlib
+import sys
 
-from .core import format_marshmallow
+from .core import format_marshmallow, validate
 
 
 def parse_args():
@@ -103,6 +104,10 @@ def main():
         fix_kwargs_for_marshmallow_4=args.fix_kwargs_for_marshmallow_4,
         sort=args.sort,
     )
+
+    if not validate(new_lines):
+        print(f"Failed to fix {args.file}", file=sys.stderr)
+        sys.exit(1)
 
     if args.diff:
         print_diff(orig_lines, new_lines)
