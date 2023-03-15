@@ -47,6 +47,7 @@ def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=noop)
                 ": ",
                 meta_value,
                 "()",
+                indent_size=indent_size,
                 width=max_line_length - indent_size,
             )
         )
@@ -55,7 +56,9 @@ def format_metadata(metadata, indent_size=4, max_line_length=80, sort_func=noop)
     return meta_lines
 
 
-def maybe_wrap_line(first_bit, sep, second_bit, parens, width=80):
+def maybe_wrap_line(
+    first_bit, sep, second_bit, parens, indent_size=4, width=80
+):  # pylint: disable=too-many-arguments
     """Wrap a line over multiple lines using parentheses if necessary.
 
     To be used for lines like:
@@ -78,6 +81,8 @@ def maybe_wrap_line(first_bit, sep, second_bit, parens, width=80):
     :param str second_bit: the string value of the dictionary key or keyword
     :param str parens: a two-character string with the opening and closing
         parenthesis to use to wrap the multi-line string if necessary
+    :param int indent_size: the number of spaces to add infront of each wrapped
+        line
     :param int width : the maximum length of line, after which wrapping is
         required
 
@@ -99,14 +104,16 @@ def maybe_wrap_line(first_bit, sep, second_bit, parens, width=80):
     new_line = f"{first_bit}{sep}{quote}{second_bit}{quote},"
     if len(new_line) > width:
         if is_string:
-            wrapped_lines = text.indent(text.wrap_text(second_bit, width=width))
+            wrapped_lines = text.indent(
+                text.wrap_text(second_bit, width=width - indent_size)
+            )
             new_lines = [f"{first_bit}{sep}{parens[0]}"]
             new_lines.extend(wrapped_lines)
             new_lines.append(f"{parens[1]},")
         else:
             new_lines = black.format_str(
                 second_bit,
-                mode=black.FileMode(line_length=width),
+                mode=black.FileMode(line_length=width - indent_size),
             ).splitlines()
             new_lines[0] = f"{first_bit}{sep}{new_lines[0]}"
             new_lines[-1] = f"{new_lines[-1]},"
@@ -237,7 +244,7 @@ def format_kwargs(
         if kwarg_name == "metadata":
             meta_lines = format_metadata(
                 kwarg_value,
-                max_line_length=max_line_length,
+                max_line_length=max_line_length - indent_size,
                 sort_func=sort_func,
             )
             kwarg_lines.extend(meta_lines)
@@ -251,7 +258,8 @@ def format_kwargs(
                     "=",
                     kwarg_value,
                     "()",
-                    width=max_line_length - (indent_size * 2),
+                    indent_size=indent_size,
+                    width=max_line_length - indent_size,
                 )
             )
 

@@ -39,10 +39,12 @@ def format_field(
     statement = nodes[0]
     first_line = repr_ast(statement)
 
-    arg_lines = format_args(statement.value, max_line_length=max_line_length)
+    arg_lines = format_args(
+        statement.value, max_line_length=max_line_length - indent_size
+    )
     kwarg_lines = format_kwargs(
         statement.value,
-        max_line_length=max_line_length,
+        max_line_length=max_line_length - indent_size,
         indent_size=indent_size,
         fix_kwargs_for_marshmallow_4=fix_kwargs_for_marshmallow_4,
         sort_func=sort_func,
@@ -156,7 +158,7 @@ def format_marshmallow(
             field_lines = format_field(
                 field,
                 indent_size=indent_size,
-                max_line_length=max_line_length,
+                max_line_length=max_line_length - indent_size,
                 fix_kwargs_for_marshmallow_4=fix_kwargs_for_marshmallow_4,
                 sort_func=sort_func,
             )
