@@ -124,8 +124,8 @@ class TestMaybeWrapLine:
         expected = [
             '"my_field": (',
             '    "this is a "',
-            '    "veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long "',
-            '    "string that needs wrapping"',
+            '    "veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery "',
+            '    "long string that needs wrapping"',
             "),",
         ]
         assert actual == expected
@@ -144,8 +144,8 @@ class TestMaybeWrapLine:
         expected = [
             "my_field=(",
             '    "this is a "',
-            '    "veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long "',
-            '    "string that needs wrapping"',
+            '    "veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery "',
+            '    "long string that needs wrapping"',
             "),",
         ]
         assert actual == expected

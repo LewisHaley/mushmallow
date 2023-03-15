@@ -308,8 +308,9 @@ class TestFormatMarshmallow:
             "class MySchema(Schema):",
             "    foo = fields.String(",
             "        missing=(",
-            '            "abcde fghij klmno qrstu vwxyz 123 456 789abcde "',
-            '            "fghij klmno qrstu vwxyz 123 456 789"',
+            '            "abcde fghij klmno qrstu vwxyz 123 456 "',
+            '            "789abcde fghij klmno qrstu vwxyz 123 "',
+            '            "456 789"',
             "        ),",
             "    )",
         ]
